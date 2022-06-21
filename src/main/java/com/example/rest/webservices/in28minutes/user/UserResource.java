@@ -1,14 +1,19 @@
 package com.example.rest.webservices.in28minutes.user;
 
-import org.springframework.http.HttpStatus;
+
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Date;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class UserResource {
@@ -23,12 +28,19 @@ public class UserResource {
 
     //get user by id
     @GetMapping("/users/{id}")
-    public User getUser(@PathVariable Integer id) {
+    public EntityModel<User> getUser(@PathVariable Integer id) {
         User user = UserDaoService.findOne(id);
         if(user == null) {
             throw new UserNotFoundException("User not found");
         }
-        return user;
+        EntityModel<User> resource = EntityModel.of(user);
+
+        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).getAllUsers());
+        resource.add(linkTo.withRel("all-users"));
+
+
+
+        return resource;
     }
 
     //create user
