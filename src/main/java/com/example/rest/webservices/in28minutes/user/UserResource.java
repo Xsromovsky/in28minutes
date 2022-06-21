@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
@@ -30,9 +31,9 @@ public class UserResource {
         return user;
     }
 
-    //create user with http status
+    //create user
     @PostMapping("/users")
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
+    public ResponseEntity<User> saveUser(@Valid @RequestBody User user) {
         UserDaoService.save(user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -42,6 +43,16 @@ public class UserResource {
         return ResponseEntity.created(location).build();
 
     }
+
+    //delete user
+    @DeleteMapping("/users/{id}")
+    public void deleteUser(@PathVariable Integer id) {
+        if(UserDaoService.deleteById(id) == null){
+            throw new UserNotFoundException("User not found");
+        }
+        UserDaoService.deleteById(id);
+    }
+
 
 
 }
